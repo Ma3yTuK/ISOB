@@ -81,35 +81,43 @@ export function Main() {
     }
 
     return (
-        <div>
+        <div style={{ textAlign: "center", backgroundColor: "lightgray" }}>
             <form>
-                <label>Choose file</label>
+                <label style={{ margin: "40px", display: "inline-block", cursor: "pointer", borderRadius: "10px", padding: "5px", backgroundColor: "lightblue", borderStyle: "solid" }}>
+                    Choose file
+                    <input type="file" style={{ display: "none" }} onChange={handleFileChange} />
+                </label>
                 <br />
-                <input type="file" onChange={handleFileChange} />
+
+                <label style={{ display: "inline-block", marginTop: "10px", width: "200px" }}>
+                    Caesar shift
+                    <br />
+                    <input style={{ width: "100%" }} type="number" min="0" max="25" onChange={handleShiftChange} />
+                </label>
+                <label style={{ display: "inline-block", marginLeft: "10px", width: "200px" }}>
+                    Vigenere key
+                    <br />
+                    <input style={{ width: "100%" }} type="text" onChange={handleKeyChange} />
+                </label>
                 <br />
-                <label>Caesar shift</label>
+
+                <label style={{ display: "inline-block", marginTop: "10px", width: "200px" }}>
+                    Choose compression type
+                    <br />
+                    <select style={{ width: "50%" }} value={compressionType} onChange={handleCompressionTypeChange}>
+                        {compression_options}
+                     </select>
+                </label>
                 <br />
-                <input type="number" min="0" max="25" onChange={handleShiftChange} />
-                <br />
-                <label>Vigenere key</label>
-                <br />
-                <input type="text" onChange={handleKeyChange} />
-                <br />
-                <label>Choose compression type</label>
-                <br />
-                <select value={compressionType} onChange={handleCompressionTypeChange}>
-                    {compression_options}
-                </select>
-                <br />
-                <button type="button" onClick={handleCompress} disabled={fileName === "" || (compressionType === compression_types.caesar && shift === null) || (compressionType === compression_types.vigenere && key === "")}>Compress</button>
-                <br />
-                <button type="button" onClick={handleDecompress} disabled={fileName === "" || (compressionType === compression_types.caesar && shift === null) || (compressionType === compression_types.vigenere && key === "")}>Decompress</button>
+                
+                <button style={{ width: "100px", margin: "10px" }} type="button" onClick={handleCompress} disabled={fileName === "" || (compressionType === compression_types.caesar && shift === null) || (compressionType === compression_types.vigenere && key === "")}>Compress</button>
+                <button style={{ width: "100px", margin: "10px" }} type="button" onClick={handleDecompress} disabled={fileName === "" || (compressionType === compression_types.caesar && shift === null) || (compressionType === compression_types.vigenere && key === "")}>Decompress</button>
             </form>
-            <div style={{ height: "400px", width: "400px" }}>
+            <div style={{ margin: "auto", height: "400px", width: "400px", backgroundColor: "white" }}>
                 {result}
             </div>
             <form>
-                <button type="button" onClick={handleSave} disabled={result === ""}>Save</button>
+                <button style={{ margin: "10px" }} type="button" onClick={handleSave} disabled={result === ""}>Save</button>
             </form>
         </div>
     );
