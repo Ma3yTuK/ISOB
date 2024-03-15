@@ -1,6 +1,7 @@
 const { getSubKeys, decrypt, encrypt, pack, unpack, typeson } = require("des");
 
 const user_id = 'Nazar';
+//const user_id = "Undefined";
 const service_id = '5002';
 const user_key = new Uint8Array([ 2, 3, 4, 5, 5, 4, 3, 2 ]);
 const as_id = '5000';
@@ -10,13 +11,13 @@ const headers = {
 
 let service_keys = new Map();
 
-function genAuth(key) {
+function genAuth() {
     let auth = {
         user_id: user_id,
         time_mark: Date.now()
     }
     console.log('New auth: ', auth);
-    return auth;
+    return auth
 }
 
 
@@ -47,14 +48,14 @@ async function prepareAsMessage() {
 
 
 async function prepareTgsMessage(asDecrResponse) {
-    let auth = genAuth(asDecrResponse.c_tgs_key);
+    let auth = genAuth();
     let tgt = asDecrResponse.tgt;
     let tgs_id = asDecrResponse.tgs_id;
 
     let tgsMessage = {
         service_id: service_id,
         tgt: tgt,
-        auth: encrypt(pack(auth), getSubKeys(user_key))
+        auth: encrypt(pack(auth), getSubKeys(asDecrResponse.c_tgs_key))
     };
     console.log('Message sent to tgs: ', tgsMessage);
     let tgsResponse = await connectServer(tgsMessage, tgs_id);
@@ -67,12 +68,12 @@ async function prepareTgsMessage(asDecrResponse) {
 
 
 async function prepareSsMessage(tgsDecrResponse) {
-    let auth = genAuth(tgsDecrResponse.c_service_key);
+    let auth = genAuth();
     let tgs = tgsDecrResponse.tgs;
 
     let ssMessage = {
         tgs: tgs,
-        auth: encrypt(pack(auth), getSubKeys(user_key))
+        auth: encrypt(pack(auth), getSubKeys(tgsDecrResponse.c_service_key))
     };
     console.log('Message sent to ss: ', ssMessage);
     let ssResponse = await connectServer(ssMessage, service_id);

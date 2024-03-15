@@ -10,7 +10,7 @@ let as_tgs_key = new Uint8Array([ 1, 2, 3, 4, 5, 6, 7, 8 ]);
 let tgs_id = '5001'; // port of tgs
 
 
-const availability_term = 5 * 1000 * 60; // millisecons
+const availability_term = 5 * 1000; // millisecons
 
 app.use(express.json());
 app.listen(port, () => console.log(`Listening on port ${port}`));
@@ -52,7 +52,7 @@ app.post('/server/authentication', (req, res) => {
             tgt: tgt
         };
 
-        console.log('Reply sent: ', response);
+        console.log('Reply sent: ', pack(response));
 
         response = encrypt(pack(response), getSubKeys(user_keys.get(user_id)));
         res.send(JSON.stringify(typeson.encapsulate(response)));

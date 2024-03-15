@@ -137,7 +137,7 @@ function permutedChoice(key) {
 
 
 function shiftRoundKey(lastKey, shift_size) {
-    const D_last_bits = (0b1111 >> (bits_in_tetrade - shift_size)) << bits_in_tetrade;
+    const D_last_bits = (0b00001111 >> (bits_in_tetrade - shift_size)) << bits_in_tetrade;
     const C_last_bits = 0b11111111 >> (bits_in_byte - shift_size);
     const D_last_byte = 3;
     const C_last_byte = 6;
@@ -157,7 +157,7 @@ function getSubKey(roundKey) {
 
     for (let i = 0; i < subkey_size_in_bytes * bits_in_byte; i++)
     {
-        let index = (round_key_size_in_bits / 2 + subkey_indexes[i] - 1) % (round_key_size_in_bits - 1);
+        let index = (round_key_size_in_bits / 2 + subkey_indexes[i] - 1) % round_key_size_in_bits;
         setBit(result, i, getBit(roundKey, index));
     }
 
@@ -184,7 +184,7 @@ function expansion(vec32) {
         let left_val = leftArr[i] & left_bits;
         let right_val = rightArr[i] & right_bits;
 
-        if (current_bit === bits_in_tetrade - 1) {
+        if (current_bit === bits_in_tetrade) {
             result[current_byte] |= right_val >> bits_in_tetrade;
             result[current_byte + 1] = (right_val << bits_in_tetrade) | left_val;
         } else {
@@ -211,17 +211,16 @@ function shrinking(vec48) {
         let last_row;
         let last_col;
 
-        if (current_bit === bits_in_tetrade - 1) {
-            first_row = (vec48[current_byte] & 0b00001100) >> 2;
-            first_col = ((vec48[current_byte] & 0b00000011) << 2) | ((vec48[current_byte + 1] & 0b11000000) >> 6);
-            last_row = (vec48[current_byte + 1] & 0b00110000) >> 4;
-            last_col = vec48[current_byte + 1] & 0b00001111
-            
+        if (current_bit === bits_in_tetrade) {
+            first_row = ((vec48[current_byte] & 0b00001000) >> 2) | ((vec48[current_byte + 1] & 0b01000000) >> 6);
+            first_col = ((vec48[current_byte] & 0b00000111) << 1) | ((vec48[current_byte + 1] & 0b10000000) >> 7);
+            last_row = ((vec48[current_byte + 1] & 0b00100000) >> 4) | (vec48[current_byte + 1] & 0b00000001);
+            last_col = (vec48[current_byte + 1] & 0b00011110) >> 1;
         } else {
-            first_row = (vec48[current_byte] & 0b11000000) >> 6;
-            first_col = (vec48[current_byte] & 0b00111100) >> 2;
-            last_row = vec48[current_byte] & 0b00000011;
-            last_col = (vec48[current_byte + 1] & 0b11110000) >> 4;
+            first_row = ((vec48[current_byte] & 0b10000000) >> 6) | ((vec48[current_byte] & 0b00000100) >> 2);
+            first_col = (vec48[current_byte] & 0b01111000) >> 3;
+            last_row = (vec48[current_byte] & 0b00000010) | ((vec48[current_byte + 1] & 0b00010000) >> 4);
+            last_col = ((vec48[current_byte] & 0b00000001) << 3) | (vec48[current_byte + 1] & 0b11100000) >> 5;
         }
 
         let first_val = S_boxes[i * 2][first_row][first_col];
@@ -238,7 +237,7 @@ function pPermutation(vec32) {
 
     for (let i = 0; i < part_size_in_bytes * bits_in_byte; i++)
     {
-        setBit(result, i, getBit(vec32, P[i]));
+        setBit(result, i, getBit(vec32, P[i] - 1));
     }
 
     return result;
@@ -253,7 +252,7 @@ function startingPermutation(value) {
     {
         for (let j = 0; j < value_size_in_bytes; j++) 
         {
-            result[permutation_indexes[i]] |= ((value[j] & byte_with_bit_set) << i) >> (value_size_in_bytes - 1 - j);
+            result[permutation_indexes[i]] |= ((value[j] & byte_with_bit_set) << i) >> (bits_in_byte - 1 - j);
         }
         byte_with_bit_set >>= 1;
     }
@@ -270,7 +269,7 @@ function endingPermutation(value) {
     {
         for (let j = 0; j < value_size_in_bytes; j++) 
         {
-            result[i] |= ((value[permutation_indexes[j]] & byte_with_bit_set) >> i) << j;
+            result[i] |= ((value[permutation_indexes[j]] & byte_with_bit_set) >> i) << (bits_in_byte - 1 - j);
         }
         byte_with_bit_set <<= 1;
     }
@@ -311,7 +310,7 @@ function encrypt_single(value64, subkeys) {
         right_part = xor(tmp, feistel(right_part, subkeys[i]));
     }
 
-    let result = endingPermutation(new Uint8Array([ ...left_part, ...right_part ]));
+    let result = endingPermutation(new Uint8Array([ ...right_part, ...left_part ]));
     return result;
 }
 
@@ -328,7 +327,7 @@ function decrypt_single(value64, subkeys) {
         right_part = xor(tmp, feistel(right_part, subkeys[i]));
     }
 
-    let result = endingPermutation(new Uint8Array([ ...left_part, ...right_part ]));
+    let result = endingPermutation(new Uint8Array([ ...right_part, ...left_part ]));
     return result;
 }
 
@@ -401,4 +400,4 @@ function decrypt(value, subkeys) {
 }
 
 
-module.exports = { getSubKeys, decrypt, encrypt, pack, unpack, typeson};
+module.exports = { getSubKeys, decrypt, encrypt, pack, unpack, typeson };

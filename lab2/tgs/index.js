@@ -14,6 +14,10 @@ const user_mark_expiration_term = 2 * 1000 * 60; // millisecons
 app.use(express.json());
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
+// function sleepFor(sleepDuration){
+//     var now = new Date().getTime();
+//     while(new Date().getTime() < now + sleepDuration);
+// }
 
 app.post('/server/authentication', (req, res) => {
     let body = typeson.revive(req.body);
@@ -28,6 +32,9 @@ app.post('/server/authentication', (req, res) => {
         console.log('Cannot decrypt value!');
         return;
     }
+
+    //sleepFor(10000);
+
     if (tgt.available_until < Date.now()) {
         console.log('Term of tgt expired!');
         return;
