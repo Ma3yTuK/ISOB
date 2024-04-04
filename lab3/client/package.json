@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mkfifo": "^2.1.0",
     "tcp": "file:../tcp"
   }
 }

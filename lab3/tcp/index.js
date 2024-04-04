@@ -28,6 +28,7 @@ class Socket {
         }
         this.bound = true;
         this.message_queue = [];
+        console.log("Socket bound");
     }
 
     listen() {
@@ -36,6 +37,7 @@ class Socket {
         }
         this.state = socket_states.listen;
         this.start_processing();
+        console.log("Socket is listening");
     }
 
     close() {
@@ -126,6 +128,10 @@ class Socket {
         this.start_processing();
     }
 
+    connected() {
+        return this.state == socket_states.established;
+    }
+
     start_processing() {
         const stream = fs.createReadStream(this.from_port);
 
@@ -206,8 +212,11 @@ class Socket {
     }
 
     static send_raw(msg) {
-        const stream = fs.createWriteStream(msg.to_port);
-        stream.write(JSON.stringify(msg) + '\n');
+        if (fs.existsSync(msg.to_port))
+        {
+            const stream = fs.createWriteStream(msg.to_port);
+            stream.write(JSON.stringify(msg) + '\n');
+        }
     }
 
     static sockets = {};

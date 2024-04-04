@@ -1,8 +1,14 @@
 const { Socket } = require('tcp')
+const fs = require('fs');
 
 const PORT = '../0003';
 const SERVER_PORT = '../0002';
 const CLIENT_PORT = '../0001';
+
+if (fs.existsSync(PORT))
+    fs.unlinkSync(PORT);
+require('mkfifo').mkfifoSync(PORT, 0o600);
+const KACTblL = fs.createWriteStream(PORT);
 
 // first attack
 /*function interrupt() {
@@ -35,5 +41,7 @@ function load() {
     }, 3000);
 }
 load();
+
+//Jusn second user
 /*let socket = new Socket(PORT);
 socket.connect(SERVER_PORT);*/ 
