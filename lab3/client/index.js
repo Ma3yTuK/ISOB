@@ -18,10 +18,10 @@ function send() {
     }, 3000);
 }
 
-function connect() {
+function wait_connect() {
     setTimeout(() => {
         if (!socket.connected()) {
-            connect();
+            wait_connect();
         }
         else {
             send();
@@ -29,4 +29,4 @@ function connect() {
     }, 1000);
 }
 socket.connect(SERVER_PORT);
-connect();
+wait_connect();
